@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from datetime import date
 
+
 class ContactCreate(BaseModel):
     first_name: str
     last_name: str
@@ -13,3 +14,8 @@ class Contact(ContactCreate):
 
     class Config:
         orm_mode = True
+
+
+class UserModel(BaseModel):
+    username: str
+    password: str
