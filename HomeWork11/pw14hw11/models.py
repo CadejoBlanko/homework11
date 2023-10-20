@@ -3,7 +3,9 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql.functions import func
 from sqlalchemy.ext.declarative import declarative_base
 
+
 Base = declarative_base()
+
 
 class Contact(Base):
     __tablename__ = 'contacts'
@@ -16,6 +18,7 @@ class Contact(Base):
     birthdate = Column(Date)
     user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), default=None)
     user = relationship('User', backref="contacts")
+
 
 class User(Base):
     __tablename__ = "users"
