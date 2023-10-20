@@ -1,5 +1,5 @@
-from pydantic import BaseModel
-from datetime import date
+from pydantic import BaseModel, Field
+from datetime import datetime, date
 
 
 class ContactCreate(BaseModel):
@@ -11,11 +11,34 @@ class ContactCreate(BaseModel):
 
 class Contact(ContactCreate):
     id: int
-
+    
     class Config:
         orm_mode = True
 
 
 class UserModel(BaseModel):
     username: str
-    password: str
+    email: str
+    password: str = Field(min_length=6)
+
+    
+class UserDb(BaseModel):
+    id: int
+    username: str
+    email: str
+    created_at: datetime
+    avatar: str
+
+    class Config:
+        orm_mode = True
+
+
+class UserResponse(BaseModel):
+    user: UserDb
+    detail: str = "User successfully created"
+
+
+class TokenModel(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
