@@ -9,6 +9,7 @@ class ContactCreate(BaseModel):
     email: str
     birthdate: date
 
+
 class Contact(ContactCreate):
     id: int
     
