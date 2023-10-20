@@ -7,12 +7,14 @@ from sqlalchemy.orm import Session
 from models import Contact, User
 from database.connection import get_db
 from schemas import ContactCreate, Contact as ContactSchema, UserModel
-from auth import create_access_token, create_refresh_token, get_email_form_refresh_token, get_current_user, Hash
-
+from routes.auth import auth_service
+from routes import auth, contact
 
 app = FastAPI()
-hash_handler = Hash()
 security = HTTPBearer()
+
+app.include_router(auth.router, prefix='/api')
+app.include_router(contact.router, prefix='/api')
 
 
 @app.post("/signup")
@@ -20,7 +22,7 @@ async def signup(body: UserModel, db: Session = Depends(get_db)):
     exist_user = db.query(User).filter(User.email == body.username).first()
     if exist_user:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Account already exists")
-    new_user = User(email=body.username, password=hash_handler.get_password_hash(body.password))
+    new_user = User(email=body.username, password=auth_service.get_password_hash(body.password))
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
@@ -32,10 +34,10 @@ async def login(body: OAuth2PasswordRequestForm = Depends(), db: Session = Depen
     user = db.query(User).filter(User.email == body.username).first()
     if user is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email")
-    if not hash_handler.verify_password(body.password, user.password):
+    if not auth_service.verify_password(body.password, user.password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid password")
-    access_token = await create_access_token(data={"sub": user.email})
-    refresh_token = await create_refresh_token(data={"sub": user.email})
+    access_token = await auth_service.create_access_token(data={"sub": user.email})
+    refresh_token = await auth_service.create_refresh_token(data={"sub": user.email})
     user.refresh_token = refresh_token
     db.commit()
     return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
@@ -44,15 +46,15 @@ async def login(body: OAuth2PasswordRequestForm = Depends(), db: Session = Depen
 @app.get('/refresh_token')
 async def refresh_token(credentials: HTTPAuthorizationCredentials = Security(security), db: Session = Depends(get_db)):
     token = credentials.credentials
-    email = await get_email_form_refresh_token(token)
+    email = await auth_service.create_refresh_token(token)
     user = db.query(User).filter(User.email == email).first()
     if user.refresh_token != token:
         user.refresh_token = None
         db.commit()
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
 
-    access_token = await create_access_token(data={"sub": email})
-    refresh_token = await create_refresh_token(data={"sub": email})
+    access_token = await auth_service.create_access_token(data={"sub": email})
+    refresh_token = await auth_service.create_refresh_token(data={"sub": email})
     user.refresh_token = refresh_token
     db.commit()
     return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
@@ -64,7 +66,7 @@ async def root():
 
 
 @app.get("/secret")
-async def read_item(current_user: User = Depends(get_current_user)):
+async def read_item(current_user: User = Depends(auth_service.get_current_user)):
     return {"message": 'secret router', "owner": current_user.email}
 
 
