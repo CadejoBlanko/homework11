@@ -1,12 +1,11 @@
-from sqlalchemy import create_engine, Column, String, Integer
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from models import Base
-
+from env import DB_PASSWORD
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./sql_app.db"
-DATABASE_URL = "postgresql+psycopg2://postgres:567234@127.0.0.1:5432/postgres"
+DATABASE_URL = f"postgresql+psycopg2://postgres:{DB_PASSWORD}@127.0.0.1:5432/postgres"
 engine = create_engine(DATABASE_URL)
 engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 
