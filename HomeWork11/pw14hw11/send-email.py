@@ -6,15 +6,17 @@ from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
 from pydantic import EmailStr, BaseModel
 from typing import List
 
+from env import EMAIL_USERNAME, EMAIL_PASSWORD, EMAIL_FROM
+
 
 class EmailSchema(BaseModel):
     email: EmailStr
 
 
 conf = ConnectionConfig(
-    MAIL_USERNAME="cadejo@meta.ua",
-    MAIL_PASSWORD="Cadejo6123",
-    MAIL_FROM="cadejo@meta.ua",
+    MAIL_USERNAME=EMAIL_USERNAME,
+    MAIL_PASSWORD=EMAIL_PASSWORD,
+    MAIL_FROM=EMAIL_FROM,
     MAIL_PORT=465,
     MAIL_SERVER="smtp.meta.ua",
     MAIL_FROM_NAME="Example email",
