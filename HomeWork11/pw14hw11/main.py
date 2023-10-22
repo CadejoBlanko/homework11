@@ -3,6 +3,7 @@ from datetime import date, timedelta
 from fastapi import FastAPI, HTTPException, status, Depends, Query, Security
 from fastapi.security import OAuth2PasswordRequestForm, HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
+import uvicorn
 
 from models import Contact, User
 from database.connection import get_db
@@ -126,3 +127,7 @@ def get_upcoming_birthdays(db: Session = Depends(get_db)):
     return db.query(Contact).filter(
         (Contact.birthdate >= today) & (Contact.birthdate <= end_date)
     ).all()
+
+
+if __name__ == '__main__':
+    uvicorn.run('main:app', port=8000, reload=True)
