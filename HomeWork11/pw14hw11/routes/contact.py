@@ -1,9 +1,8 @@
-from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status, Path, Query
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from database.connection import get_db
-from models import Contact, User
+from models import User
 from schemas import Contact as ContactModel
 from routes.auth import auth_service
 from repository import contacts as repository_contacts
