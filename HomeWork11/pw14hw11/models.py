@@ -30,4 +30,8 @@ class User(Base):
     created_at = Column(DateTime, default=func.now())
     avatar = Column(String(255), nullable=True)
     refresh_token = Column(String(255), nullable=True)
+<<<<<<< HEAD
     confirmed = Column(Boolean, default=False)
+=======
+    confirmed = Column(Boolean, default=False)
+>>>>>>> d70fa9896b8814485b70d7eb7599bd434adc4c20
